@@ -4,69 +4,79 @@ content = {'drive': [], 'folder': [], 'text': [], 'zip': [] }
 ##### Begin Entity Class #####
  
 class Entity(object):
-    def __init__(self, Type=None, Name=None, Parent=None, Size=0):
-        if Type not in content:
-        	print 'Invalid type \"%s\"' % Type
-        	return False
-        self.type = Type
+	def __init__(self, Type=None, Name=None, Parent=None, Size=0):
+		if Type not in content:
+			print 'Invalid type \"%s\"' % Type
+			return False
+		self.type = Type
 
-        if Name in Parent.children:
-        	print 'Path \"%s\\%s\" already exists' % Parent, Name
-        	return False
-        self.name = Name
-        
-        if Type is 'drive' and Parent is not None:
-        	print 'Illegal File System Operation'
-        	return False
-        if Parent is None and Type is not 'drive':
-        	print 'Illegal File System Operation'
-        	return False
-        self.parent = Parent
-        
-        self.children = []
-        self.size = __get_size()
-        return self
+		if Type is 'drive' and Parent is not None:
+			print 'Illegal File System Operation'
+			return False
+		if Type is not 'drive' and Parent is None:
+			print 'Illegal File System Operation'
+			return False
 
-    def __get_size():
-    	if self.type is 'drive':
-    		print 'drive size'
-    	elif self.type is 'folder':
-    		print 'folder size'
-    	elif self.type is 'text':
-    		print 'text size'
-    	elif self.type is 'zip':
-    		print 'zip 1/2 size'
-    	return 0
+		self.parent = find_parent(Parent)
 
-    def write(writing):
-    	if self.type is not 'text':
-    		return False
-    	self.content = str(writing)
-    	return True
+		#self.parent.children.append(self)
 
-    def path(fullPath=''):
-    	if self.parent is None:
-    		fullPath = self.name
-    	else:
-    		self.parent.path(fullPath)
-    		fullPath += '\\' + self.name
-    	return fullPath
+		if Parent is not None:
+			if Name in Parent.children:
+				print 'Path \"%s\\%s\" already exists' % Parent, Name
+				return False
+		self.name = Name
+		
+		self.children = []
+		return 
+
+	def find_parent(self, parentName):
+			for d in content['drive']:
+				if parentName == d.name:
+					return d
+			for f in content['folder']:
+				if parentName == f.name:
+					return f
+			for z in content['zip']:
+				if parentName == z.name:
+					return z
+			return False
+
+	def __get_size(self):
+		if self.type is 'drive':
+			print 'drive size'
+		elif self.type is 'folder':
+			print 'folder size'
+		elif self.type is 'text':
+			print 'text size'
+		elif self.type is 'zip':
+			print 'zip 1/2 size'
+		return 0
+
+	def write(self, writing):
+		if self.type is not 'text':
+			return False
+		self.content = str(writing)
+		return True
+
+	def path(self, fullPath=''):
+		if self.parent is None:
+			fullPath = self.name
+		else:
+			self.parent.path(fullPath)
+			fullPath += '\\' + self.name
+		return fullPath
 
 
 ##### End Entity Class #####
 
 def create(Type, Name, PathOfParent = None):
-	for value in content[Type]:
-		if Name in value['name']:
-			print '%s already exists.' % Name
-			return
-
-	Name = {'type': Type, 'name': Name, 'parent': PathOfParent}
-	if Type == 'text':
-		Name['content'] = ''
-
-	content[Type].append(Name)
-	return Name
+	created = Entity(Type=Type, Name=Name, Parent=PathOfParent)
+	if created:
+		content[Type].append(created)
+		return True
+	else: 
+		return False
 
 def delete(Path):
 
