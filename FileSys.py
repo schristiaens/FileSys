@@ -5,13 +5,29 @@ content = {'drive': [], 'folder': [], 'text': [], 'zip': [] }
  
 class Entity(object):
     def __init__(self, Type=None, Name=None, Parent=None, Size=0):
+        if Type not in content:
+        	print 'Invalid type \"%s\"' % Type
+        	return False
         self.type = Type
-        self.name = Name
-        self.parent = Parent
-        self.children = []
-    	return
 
-    def size():
+        if Name in Parent.children:
+        	print 'Path \"%s\\%s\" already exists' % Parent, Name
+        	return False
+        self.name = Name
+        
+        if Type is 'drive' and Parent is not None:
+        	print 'Illegal File System Operation'
+        	return False
+        if Parent is None and Type is not 'drive':
+        	print 'Illegal File System Operation'
+        	return False
+        self.parent = Parent
+        
+        self.children = []
+        self.size = __get_size()
+        return self
+
+    def __get_size():
     	if self.type is 'drive':
     		print 'drive size'
     	elif self.type is 'folder':
@@ -20,15 +36,26 @@ class Entity(object):
     		print 'text size'
     	elif self.type is 'zip':
     		print 'zip 1/2 size'
-    	return 
+    	return 0
+
+    def write(writing):
+    	if self.type is not 'text':
+    		return False
+    	self.content = str(writing)
+    	return True
+
+    def path(fullPath=''):
+    	if self.parent is None:
+    		fullPath = self.name
+    	else:
+    		self.parent.path(fullPath)
+    		fullPath += '\\' + self.name
+    	return fullPath
+
 
 ##### End Entity Class #####
 
 def create(Type, Name, PathOfParent = None):
-	if Type not in content:
-		print 'Invalid entity type \"%s\".\n' % Type
-		return
-	
 	for value in content[Type]:
 		if Name in value['name']:
 			print '%s already exists.' % Name
